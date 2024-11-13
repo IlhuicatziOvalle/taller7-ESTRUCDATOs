@@ -595,6 +595,142 @@ void InOrdenDescendente(const ArbolBinario *const arbol, void (*func)(void*)){
     LiberarLista(&pila);
 
 }
+void swapDatoValue(Dato *a, Dato *b)
+{
+    Dato temp = *a;
+    *a = *b;
+    *b = temp;
+}
+void bubblingUp(PQueue *pq, int k, int min, int (*comparar)(void *, void *))
+{
+    //pq es la cola con prioridad
+    //k es el indice del nodo en el arreglo 
+    //min es 1 si es MinHeap o -1 si es MaxHeap
+    //comparar una funcion que debe regresar 1 si es menor o igual el primer
+    //parametro o -1 si es mayor
+
+    //inversa 2k+1->(k-1)/2
+    int indexPadre = (k - 1) / 2;
+    //mientras elemento sea mayor a 0 &&
+    //comparar (heap[k] con heap [index_padre]) sea igual a min
+    while (k > 0 && comparar(pq->heap[k].valor, pq->heap[indexPadre].valor) == min)
+    {
+        swapDatoValue(&pq->heap[indexPadre], &pq->heap[k]);
+        k = indexPadre;
+        indexPadre = (k - 1) / 2;
+    }
+}
+void bubblingDown(PQueue *pq, int k, int min, int (*comparar)(void *, void *))
+{
+    //pq es la cola con prioridad
+    //k es el indice del nodo en el arreglo 
+    //min es 1 si es MinHeap o -1 si es MaxHeap
+    //comparar una funcion que debe regresar 1 si es menor o igual el primer
+    //parametro o -1 si es mayor
+    
+    //Mientras 1
+    while(1)
+    {   
+        //obtener indice del hijo izquierdo con
+        int izq= 2*k+1;
+        //obtener el indice del hijo derecho con
+        int der= 2*k+2; //int der= 2*k+1;
+        //asumir que el izq es el mas chico
+        int chico=izq;
+        
+        //el derecho es mas chico
+        if(der<pq->heap_size && comparar(pq->heap[der].valor, pq->heap[izq].valor)==min)
+        {
+        chico=der;
+        }
+
+        //si terminamos los elementos entonces salir
+        if(izq>= pq->heap_size || comparar(pq->heap[k].valor,pq->heap[chico].valor)==min)
+        {
+            break;
+        }
+        //intercambiar los valores de los nodos
+        swapDatoValue(&pq->heap[chico],&pq->heap[k]);
+        k=chico;
+    }
+}
+void insercionHeap(PQueue *pq, void *dato, int min,int (*comparar)(void *, void *))
+{
+    //pq es la cola con prioridad
+    //dato es el dato a ingresar a la cola
+    //min es 1 si es MinHeap o -1 si es MaxHeap
+    //comparar una funcion que debe regresar 1 si es menor o igual el primer
+    //parametro o -1 si es mayor
+
+    //Si pq->heap_size menor que pq->heap_capacidad entonces
+    if(pq->heap_size < pq->heap_capacidad)
+    {
+        pq->heap[pq->heap_size].valor = dato;
+    }
+    else
+    {   //incrementar capacidad       
+        pq->heap_capacidad*=2;
+        //agrandar el arreglo heap con realloc en capacidad
+        pq->heap=realloc(pq->heap,pq->heap_capacidad * sizeof(PQueue));
+        pq->heap[pq->heap_size].valor=dato;
+    }
+    bubblingUp(pq,pq->heap_size,min,comparar);
+    pq->heap_size++;
+}
+
+
+void *pq_pop(PQueue *pq, int min, int (*comparar)(void *, void *))
+{
+    //pq es la cola con prioridad
+    //min es 1 si es MinHeap o -1 si es MaxHeap
+    //comparar una funcion que debe regresar 1 si es menor o igual el primer 
+    //parametro o -1 si es mayor
+    void *salir=pq->heap[0].valor;
+    swapDatoValue(&pq->heap[0], &pq->heap[pq->heap_size-1]);
+    //borrar, en caso de hacer malloc usar free
+    pq->heap[pq->heap_size-1].valor=0;
+    pq->heap_size--;
+    bubblingDown(pq,0,min,comparar);
+    return salir;
+}
+void initPQueue(PQueue *pq, int tam) {
+    pq->heap = (Dato *)calloc(tam, sizeof(Dato));
+    pq->heap_size = 0;
+    pq->heap_capacidad = tam;
+}
+void *remover(PQueue *pq, int (*comparar)(void *, void *)) {
+    if (pq->heap_size <= 0) {
+        return NULL; // El montículo está vacío
+    }
+
+    // El elemento raíz a remover
+    void *datoRemovido = pq->heap[0].valor;
+
+    // Reemplaza la raíz con el último elemento
+    pq->heap[0].valor = pq->heap[pq->heap_size - 1].valor;
+    pq->heap_size--; // Reduce el tamaño del heap
+
+    // Realiza bubbling down para restaurar la propiedad del heap
+    bubblingDown(pq, 0, 0, comparar);
+
+    return datoRemovido;
+}
+
+int compararSeveridad(void *a, void *b) {
+    if (!a || !b) return 0;  // Verificar punteros válidos
+
+    Paciente *p1 = (Paciente *)a;
+    Paciente *p2 = (Paciente *)b;
+
+    // Comparar las severidades
+    if (p1->informacion->severidad < p2->informacion->severidad) {
+        return 1;  // p1 es menor
+    } else if (p1->informacion->severidad > p2->informacion->severidad) {
+        return -1; // p1 es mayor
+    } else {
+        return 0;  // son iguales
+    }
+}
 
 int JerarquiaOperadores(char a, char b)
 {
