@@ -1,4 +1,3 @@
-
 typedef struct _NodoDoble{
     void *dato;
     struct _NodoDoble *next;
@@ -24,6 +23,27 @@ typedef struct _ArbolBinario{
     int altura;
     int tam;
 }ArbolBinario;
+
+typedef struct _DATO{
+    void *valor;
+}Dato;
+
+typedef struct _PQueue{
+    int heap_size;
+    int heap_capacidad;
+    Dato *heap;
+}PQueue;
+
+typedef struct _Lesion{
+    int severidad;
+    char descripcion[100];
+}Lesion;
+
+typedef struct _Paciente{
+    char nombre[50];
+    Lesion *informacion;    
+}Paciente;
+
 
 
 void ImprimirNumeros(void *dato);
@@ -75,6 +95,14 @@ int eliminarNodo(NodoBinario **raiz,void * dato, int(*comparar)(void *,void *));
 void InOrdenDescendente(const ArbolBinario *const arbol, void (*func)(void*));
 
 
+void swapDatoValue(Dato *a, Dato *b);
+void bubblingUp(PQueue *pq, int k, int min, int (*comparar)(void *, void *));
+void bubblingDown(PQueue *pq, int k, int min, int (*comparar)(void *, void *));
+void insercionHeap(PQueue *pq, void *dato, int min,int (*comparar)(void *, void *));
+void *pq_pop(PQueue *pq, int min, int (*comparar)(void *, void *));
+void initPQueue(PQueue *pq, int tam);
+void *remover(PQueue *pq, int (*comparar)(void *, void *));
+int compararSeveridad(void *a, void *b);
 
 typedef NodoBinario NodoExpr;
 int JerarquiaOperadores(char a, char b);
