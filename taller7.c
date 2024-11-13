@@ -47,6 +47,5 @@ int main() {
         printf("Nombre: %s\n" ,paciente->nombre);
     }
 
-    remover(&IMSS,)
     return 0;
 }
